@@ -33,6 +33,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
             await signInWithEmailAndPassword(auth, email, password);
             return { success: true };
         } catch (error: any) {
+            console.log("Error al iniciar sesión:", error.message);
             return { success: false, msg: error.message };
         }
     };
@@ -62,6 +63,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
             });
             return { success: true };
         } catch (error: any) {
+            console.log("Error al registrar el usuario:", error.message);
+            if(error.includes('(auth/invalid-credential)')) error.message = "Credenciales inválidas";
             return { success: false, msg: error.message };
         }
     };
