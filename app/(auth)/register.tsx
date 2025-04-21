@@ -19,6 +19,7 @@ import {
   import Button from '@/components/Button';
   import { useRouter } from 'expo-router';
   import { Picker } from '@react-native-picker/picker';
+  import { UserType } from '@/types';
   
   const Register = () => {
     const emailRef = useRef('');
@@ -27,8 +28,8 @@ import {
     const ageRef = useRef('');
     const heightRef = useRef('');
     const weightRef = useRef('');
-    const [gender, setGender] = useState('');
-    const [activity, setActivity] = useState('');
+    const [gender, setGender] = useState<"masculino" | "femenino" | null>(null);
+    const [activity, setActivity] = useState<"sedentaria" | "moderada" | "muy_activa" | null>(null);
     const [isLoading, setIsLoading] = useState(false);
     const [showGenderPicker, setShowGenderPicker] = useState(false);
     const [showActivityPicker, setShowActivityPicker] = useState(false);
@@ -69,6 +70,17 @@ import {
       console.log('Weight:', weightRef.current);
       console.log('Activity Level:', activity);
       console.log('good to go');
+
+      const userData: UserType = {
+        uid: 'someUniqueUserID',     // Generado automáticamente o desde la autenticación
+        email: emailRef.current,        // Capturado desde el formulario
+        name: nameeRef.current,                  // Capturado desde el formulario
+        height: parseFloat(heightRef.current),  // Altura capturada y convertida a número
+        weight: parseFloat(weightRef.current),  // Peso capturado y convertido a número
+        age: parseInt(ageRef.current),          // Edad capturada y convertida a número
+        gender: gender,              // Género capturado desde el desplegable
+        activity: activity,          // Actividad física capturada desde el desplegable
+      };
     };
   
     return (

@@ -1,0 +1,9 @@
+import { AuthContextType } from "@/types";
+import { createContext } from "react";
+
+
+const authContext = createContext<AuthContextType | null>(null);
+
+export const AuthContextProvider: React.FC<{children: React.ReactNode}> = ({ children }) => {
+    
+}
