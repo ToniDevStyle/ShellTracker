@@ -128,9 +128,14 @@ export type ImageUploadProps = {
 };
 
 export type UserType = {
-  uid?: string;
-  email?: string | null;
-  name: string | null;
+  uid: string; // ID del usuario
+  email: string | null; // Correo electrónico
+  name: string | null; // Nombre del usuario
+  height: number | null; // Altura en cm
+  weight: number | null; // Peso en kg
+  age: number | null; // Edad
+  gender: "masculino" | "femenino" | null; // Género
+  activity: "sedentaria" | "moderada" | "muy_activa" | null; // Actividad física
   image?: any;
 } | null;
 
@@ -149,7 +154,12 @@ export type AuthContextType = {
   register: (
     email: string,
     password: string,
-    name: string
+    name: string,
+    height: number,
+    weight: number,
+    age: number,
+    gender: string,
+    activity: string
   ) => Promise<{ success: boolean; msg?: string }>;
   updateUserData: (userId: string) => Promise<void>;
 };

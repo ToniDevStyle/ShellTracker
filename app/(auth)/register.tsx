@@ -20,11 +20,12 @@ import {
   import { useRouter } from 'expo-router';
   import { Picker } from '@react-native-picker/picker';
   import { UserType } from '@/types';
+import { useAuth } from '@/contexts/authContext';
   
   const Register = () => {
     const emailRef = useRef('');
     const passwordRef = useRef('');
-    const nameeRef = useRef('');
+    const nameRef = useRef('');
     const ageRef = useRef('');
     const heightRef = useRef('');
     const weightRef = useRef('');
@@ -34,14 +35,15 @@ import {
     const [showGenderPicker, setShowGenderPicker] = useState(false);
     const [showActivityPicker, setShowActivityPicker] = useState(false);
     const router = useRouter();
+    const {register: registerUser} = useAuth();
   
     const isNumeric = (value: string) => /^(\d+|\d+\.\d+)$/.test(value);
   
-    const handleSubmit = () => {
+    const handleSubmit = async () => {
       if (
         !emailRef.current ||
         !passwordRef.current ||
-        !nameeRef.current ||
+        !nameRef.current ||
         !ageRef.current ||
         !gender ||
         !heightRef.current ||
@@ -63,7 +65,7 @@ import {
   
       console.log('Email:', emailRef.current);
       console.log('Password:', passwordRef.current);
-      console.log('Name:', nameeRef.current);
+      console.log('Name:', nameRef.current);
       console.log('Age:', ageRef.current);
       console.log('Gender:', gender);
       console.log('Height:', heightRef.current);
@@ -71,16 +73,23 @@ import {
       console.log('Activity Level:', activity);
       console.log('good to go');
 
-      const userData: UserType = {
-        uid: 'someUniqueUserID',     // Generado automáticamente o desde la autenticación
-        email: emailRef.current,        // Capturado desde el formulario
-        name: nameeRef.current,                  // Capturado desde el formulario
-        height: parseFloat(heightRef.current),  // Altura capturada y convertida a número
-        weight: parseFloat(weightRef.current),  // Peso capturado y convertido a número
-        age: parseInt(ageRef.current),          // Edad capturada y convertida a número
-        gender: gender,              // Género capturado desde el desplegable
-        activity: activity,          // Actividad física capturada desde el desplegable
-      };
+      setIsLoading(true);
+      const res = await registerUser(
+        emailRef.current, 
+        passwordRef.current, 
+        nameRef.current, 
+        parseInt(heightRef.current),
+        parseFloat(weightRef.current), 
+        parseInt(ageRef.current),
+        gender,
+        activity
+      );
+      setIsLoading(false);
+      console.log('register result', res);
+      if(!res.success){
+        Alert.alert('Error', res.msg || 'Error al registrarse');
+        
+      }
     };
   
     return (
@@ -104,7 +113,7 @@ import {
   
             <Input
               placeholder="Nombre"
-              onChangeText={(value) => (nameeRef.current = value)}
+              onChangeText={(value) => (nameRef.current = value)}
               icon={
                 <Icons.User size={verticalScale(26)} color={colors.neutral300} />
               }
