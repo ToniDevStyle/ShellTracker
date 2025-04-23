@@ -13,15 +13,13 @@ const Home = () => {
     const {user} = useAuth();
     console.log(user);
 
-    const handleLogOut = async() => {
-        await signOut(auth);
-    }
+   // const handleLogOut = async() => {
+     //   await signOut(auth);
+    //}
   return (
     <ScreenWrapper>
       <Typo>Home</Typo>
-      <Button onPress={handleLogOut}>
-        <Typo color={colors.black}>Cerrar Sesión</Typo> 
-        </Button>
+      
     </ScreenWrapper>
   )
 }
