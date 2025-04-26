@@ -1,5 +1,5 @@
-import { Alert, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native'
-import React, { useState } from 'react'
+import { Alert, ScrollView, StyleSheet, Text, TouchableOpacity, View, Modal } from 'react-native'
+import React, { useEffect, useState } from 'react'
 import { colors, spacingX, spacingY } from '@/constants/theme'
 import { scale, verticalScale } from '@/utils/styling'
 import ScreenWrapper from '@/components/ScreenWrapper'
@@ -13,8 +13,14 @@ import Typo from '@/components/Typo'
 import Input from '@/components/Input'
 import { UserDataType } from '@/types'
 import Button from '@/components/Button'
+import { Picker } from '@react-native-picker/picker'
+import { useAuth } from '@/contexts/authContext'
+import { updateUSer } from '@/services/userService'
+import { useRouter } from 'expo-router'
 
 const ProfileModal = () => {
+
+    const {user, updateUserData} = useAuth();
 
     const [userData, setUserData] = useState<UserDataType>({
         name: '',
@@ -27,14 +33,38 @@ const ProfileModal = () => {
 
     const [loading, setLoading] = useState(false);
 
+    const router = useRouter();
+
+    const [showActivityPicker, setShowActivityPicker] = useState(false);
+
+    useEffect(() => {
+        setUserData({
+            name: user?.name || '',
+            image: user?.image || null,
+            height: user?.height?.toString() || '',
+            weight: user?.weight?.toString() || '',
+            activity: user?.activity || '',
+        })
+    }, [user])
+
+
     const onSubmit = async() => {
         let {name, image, height, weight, activity} = userData;
-        if(!name.trim() || !image?.trim() || !height?.trim() || !weight?.trim() || !activity?.trim()) {
+        if(!name.trim() ||  !height?.trim() || !weight?.trim() || !activity?.trim()) {
             Alert.alert('Error', 'Por favor rellena todos los campos');
             return;
         }
 
-        console.log('userData', userData);
+        setLoading(true);
+        const res = await updateUSer(user?.uid as string, userData)
+        setLoading(false);
+        if(res.success) {
+            updateUserData(user?.uid as string);
+            Alert.alert('Éxito', res.msg || 'Usuario actualizado correctamente');
+            router.back();
+        }else{
+            Alert.alert('Error', res.msg || 'Error al actualizar el usuario');
+        }
     }
 
   return (
@@ -84,13 +114,38 @@ const ProfileModal = () => {
                     />
             </View>
             <View style={styles.inputContainer}>
-                <Typo color={colors.neutral200}>Nivel de Actividad</Typo>
-                <Input
-                    placeholder='Nivel de Actividad'
-                    value={userData.activity}
-                    onChangeText={(text) => setUserData({...userData, activity: text})}
-                    />
-            </View>
+  <Typo color={colors.neutral200}>Nivel de Actividad</Typo>
+  <TouchableOpacity
+    style={styles.customPicker}
+    onPress={() => setShowActivityPicker(true)}
+  >
+    <Text style={{ color: userData.activity ? colors.text : colors.neutral300 }}>
+      {userData.activity || 'Selecciona nivel de actividad'}
+    </Text>
+  </TouchableOpacity>
+
+  <Modal visible={showActivityPicker} transparent animationType="slide">
+    <View style={styles.modalOverlay}>
+      <View style={styles.modalContent}>
+        <Picker
+          selectedValue={userData.activity}
+          onValueChange={(value) => {
+            setUserData({ ...userData, activity: value });
+            setShowActivityPicker(false);
+          }}
+        >
+          <Picker.Item label="Sedentaria" value="sedentaria" />
+          <Picker.Item label="Moderada" value="moderada" />
+          <Picker.Item label="Muy activa" value="muy_activa" />
+        </Picker>
+        <Button onPress={() => setShowActivityPicker(false)}>
+          <Typo>Cerrar</Typo>
+        </Button>
+      </View>
+    </View>
+  </Modal>
+</View>
+
         </ScrollView>
       </View>
 
@@ -107,6 +162,24 @@ const ProfileModal = () => {
 export default ProfileModal
 
 const styles = StyleSheet.create({
+    modalOverlay: {
+        flex: 1,
+        backgroundColor: 'rgba(0,0,0,0.5)',
+        justifyContent: 'flex-end',
+      },
+      modalContent: {
+        backgroundColor: 'white',
+        padding: 20,
+        borderTopLeftRadius: 20,
+        borderTopRightRadius: 20,
+      },
+    customPicker: {
+        borderWidth: 1,
+        borderColor: colors.neutral200,
+        borderRadius: 8,
+        padding: 12,
+        marginBottom: 10,
+      },
     container: {
         flex: 1,
         justifyContent: 'space-between',

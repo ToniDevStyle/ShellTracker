@@ -22,6 +22,7 @@ export type ScreenWrapperProps = {
 export type ModalWrapperProps = {
   style?: ViewStyle;
   children: React.ReactNode;
+  bg?: string;
 };
 export type accountOptionType = {
   title: string;
@@ -142,6 +143,9 @@ export type UserType = {
 export type UserDataType = {
   name: string;
   image?: any;
+  height: string,
+  weight: string,
+  activity: string,
 };
 
 export type AuthContextType = {
