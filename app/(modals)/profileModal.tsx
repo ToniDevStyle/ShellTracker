@@ -17,6 +17,7 @@ import { Picker } from '@react-native-picker/picker'
 import { useAuth } from '@/contexts/authContext'
 import { updateUSer } from '@/services/userService'
 import { useRouter } from 'expo-router'
+import * as ImagePicker from 'expo-image-picker'
 
 const ProfileModal = () => {
 
@@ -46,6 +47,17 @@ const ProfileModal = () => {
             activity: user?.activity || '',
         })
     }, [user])
+
+    const onPickImage = async() => {
+            let result = await ImagePicker.launchImageLibraryAsync({
+              mediaTypes: ['images'],
+              aspect: [4, 3],
+              quality: 0.5,
+            });
+            if (!result.canceled) {
+                setUserData({...userData, image: result.assets[0]});
+            }
+    }
 
 
     const onSubmit = async() => {
@@ -81,7 +93,7 @@ const ProfileModal = () => {
                     transition={100}
                 />
 
-                <TouchableOpacity style={styles.editIcon}>
+                <TouchableOpacity onPress={onPickImage} style={styles.editIcon}>
                     <Icons.Pencil 
                         size={verticalScale(20)}
                         color={colors.neutral800}
