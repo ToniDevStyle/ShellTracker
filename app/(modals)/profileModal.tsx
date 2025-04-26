@@ -29,7 +29,7 @@ const ProfileModal = () => {
 
     const onSubmit = async() => {
         let {name, image, height, weight, activity} = userData;
-        if(!name.trim() || !image.trim() || !height?.trim() || !weight?.trim() || !activity?.trim()) {
+        if(!name.trim() || !image?.trim() || !height?.trim() || !weight?.trim() || !activity?.trim()) {
             Alert.alert('Error', 'Por favor rellena todos los campos');
             return;
         }
