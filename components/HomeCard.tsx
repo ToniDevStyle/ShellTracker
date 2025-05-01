@@ -31,13 +31,35 @@ const HomeCard = () => {
         <View>
           {/* Total Calories Balance */}
           <View style={styles.totalBalanceCaloriesRow}>
-            <Typo color={colors.neutral800} size={17} fontWeight={"500"}>Calorías Totales</Typo>
+            <Typo color={colors.neutral800} size={17} fontWeight={"500"}>Calorías Recomendadas</Typo>
             <Icons.DotsThreeOutline size={verticalScale(23)} weight='fill' />
           </View>
           <Typo color={colors.black} size={30} fontWeight={'bold'}>
             {totalCalories}
           </Typo>
         </View>
+
+        {/* Suma de kcal de alimentos seleccionados */}
+        <View style={styles.stats}>
+          <View style={{gap: verticalScale(5)}}>
+            <View style={styles.incomeCalories}>
+              <View style={styles.statsIcon}>
+                <Icons.ArrowUp
+                  size={verticalScale(15)}
+                  color={colors.black}
+                  weight='bold'
+                  />
+              </View>
+              <Typo size={16} color={colors.neutral700} fontWeight={'500'}>
+                Digeridas
+              </Typo>
+            </View>
+            <View style={{alignSelf: 'center'}}>
+                <Typo color='#FF8C00' fontWeight={'600'}>2342</Typo>
+            </View>
+          </View>
+        </View>
+
       </View>
     </ImageBackground>
   )
