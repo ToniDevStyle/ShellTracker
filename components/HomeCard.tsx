@@ -51,7 +51,7 @@ const HomeCard = () => {
                   />
               </View>
               <Typo size={16} color={colors.neutral700} fontWeight={'500'}>
-                Digeridas
+                Registradas
               </Typo>
             </View>
             <View style={{alignSelf: 'center'}}>
