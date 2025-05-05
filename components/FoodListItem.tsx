@@ -1,9 +1,11 @@
 import AntDesign from "@expo/vector-icons/AntDesign";
-import { gql, useMutation } from "@apollo/client";
+import { gql, useMutation, useApolloClient } from "@apollo/client";
 import { useRouter } from "expo-router";
 import { View, Text } from "react-native";
 import { useAuth } from "@/contexts/authContext";
-import dayjs from "dayjs"; // Import dayjs
+import dayjs from "dayjs";
+import utc from 'dayjs/plugin/utc';
+dayjs.extend(utc);
 
 const mutation = gql`
   mutation InsertFood_log($food_id: String!, $kcal: Int!, $label: String!, $user_id: String!) {
@@ -19,7 +21,6 @@ const mutation = gql`
   }
 `;
 
-// CUSTOM COMPONENT
 type FoodItem = {
   food: {
     foodId: string;
@@ -34,10 +35,13 @@ type FoodItem = {
 const FoodListItem = ({ item }: { item: FoodItem }) => {
   const { user } = useAuth();
   const router = useRouter();
+  const client = useApolloClient();
 
   const [logFood] = useMutation(mutation, {
     update(cache, { data: { insertFood_log } }) {
       try {
+        const currentDateUTC = dayjs.utc().format("YYYY-MM-DD");
+
         const cacheResult = cache.readQuery<{ foodLogsForDate?: any[] }>({
           query: gql`
             query foodLogsForDate($date: Date!, $user_id: String!) {
@@ -52,7 +56,7 @@ const FoodListItem = ({ item }: { item: FoodItem }) => {
               }
             }
           `,
-          variables: { date: dayjs().format("YYYY-MM-DD"), user_id: user?.uid },
+          variables: { date: currentDateUTC, user_id: user?.uid },
         });
 
         const existingFoodLogs = cacheResult?.foodLogsForDate || [];
@@ -71,7 +75,7 @@ const FoodListItem = ({ item }: { item: FoodItem }) => {
               }
             }
           `,
-          variables: { date: dayjs().format("YYYY-MM-DD"), user_id: user?.uid },
+          variables: { date: currentDateUTC, user_id: user?.uid },
           data: {
             foodLogsForDate: [insertFood_log, ...existingFoodLogs],
           },
@@ -95,7 +99,6 @@ const FoodListItem = ({ item }: { item: FoodItem }) => {
           user_id: user?.uid,
         },
       });
-      // The router.back() is now handled in the onCompleted callback
     } catch (error) {
       console.error("Error al registrar comida:", error);
     }

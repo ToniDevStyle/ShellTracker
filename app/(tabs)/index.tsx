@@ -7,7 +7,7 @@ import {
   FlatList,
   ActivityIndicator,
 } from "react-native";
-import React from "react";
+import React, { useEffect } from "react";
 import Button from "@/components/Button";
 import Typo from "@/components/Typo";
 import { colors, spacingX, spacingY } from "@/constants/theme";
@@ -23,7 +23,6 @@ import { gql, useQuery } from "@apollo/client";
 import dayjs from "dayjs";
 import FoodLogListItem from "@/components/FoodLogListItem";
 
-
 const query = gql`
   query foodLogsForDate($date: Date!, $user_id: String!) {
     foodLogsForDate(date: $date, user_id: $user_id) {
@@ -33,37 +32,31 @@ const query = gql`
       label
       kcal
       id
+      __typename
     }
   }
 `;
 
 const Home = () => {
   const { user } = useAuth();
-  console.log(user);
-
   const router = useRouter();
-
-  
-
   const user_id = user?.uid;
 
   const { data, loading, error, refetch } = useQuery(query, {
     variables: { date: dayjs().format("YYYY-MM-DD"), user_id },
   });
 
+  useEffect(() => {
+    refetch(); // Fuerza una nueva búsqueda al montar el componente y cada vez que refetch cambia
+  }, [refetch]);
 
-  if (loading) {
-    return <ActivityIndicator />;
-  }
+  console.log("Estado de carga en Home:", loading);
+  console.log("Error en Home:", error);
+  console.log("Data completa en Home:", data);
+  console.log("user_id en Home:", user_id);
+  console.log("Fecha en Home:", dayjs().format("YYYY-MM-DD"));
 
-  if (error) {
-    return <Text>Failed to fetch data</Text>;
-  }
-
-  console.log("Data completa:", data);
-  console.log("user_id:", user_id);
-  console.log("Fecha:", dayjs().format("YYYY-MM-DD"));
-
+  const foodLogs = data?.foodLogsForDate || [];
 
   return (
     <ScreenWrapper>
@@ -90,20 +83,17 @@ const Home = () => {
           </TouchableOpacity>
         </View>
         {/* Card to show user Kcalories */}
-        <View>
-          <HomeCard />
-        </View>
+        <HomeCard foodLogs={foodLogs} /> 
 
         <View>
-        <FlatList
-          data={data.foodLogsForDate}
-          contentContainerStyle={{ gap: 5 }}
-          renderItem={({ item }) => {
-            console.log("Comidas del día:", data.foodLogsForDate);
-            console.log("Item:", item);
-            return <FoodLogListItem item={item} />;
-          }}
-        />
+          <FlatList
+            data={foodLogs}
+            contentContainerStyle={{ gap: 5 }}
+            renderItem={({ item }) => {
+              return <FoodLogListItem item={item} />;
+            }}
+            keyExtractor={(item) => item.id.toString()}
+          />
         </View>
       </View>
     </ScreenWrapper>
@@ -117,7 +107,6 @@ const styles = StyleSheet.create({
     paddingBottom: verticalScale(100),
     gap: spacingY._25,
   },
-
   container: {
     flex: 1,
     paddingHorizontal: spacingX._20,

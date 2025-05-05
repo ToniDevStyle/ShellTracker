@@ -1,17 +1,21 @@
-import { ImageBackground, StyleSheet, View } from 'react-native'
-import React from 'react'
-import Typo from './Typo'
-import { colors, spacingX, spacingY } from '@/constants/theme'
-import { scale, verticalScale } from '@/utils/styling'
-import * as Icons from 'phosphor-react-native'
-import { useAuth } from '@/contexts/authContext'
+import { ImageBackground, StyleSheet, View } from 'react-native';
+import React from 'react';
+import Typo from './Typo';
+import { colors, spacingX, spacingY } from '@/constants/theme';
+import { scale, verticalScale } from '@/utils/styling';
+import * as Icons from 'phosphor-react-native';
+import { useAuth } from '@/contexts/authContext';
 import calculateCalories from '@/utils/calculateCalories';
 
-const HomeCard = () => {
+interface HomeCardProps { // Define una interfaz para las props
+  foodLogs: { kcal: number }[];
+}
+
+const HomeCard: React.FC<HomeCardProps> = ({ foodLogs }) => { // Usa la interfaz en la definición del componente
   const { user } = useAuth();
 
-  // Si falta algún dato, ponemos calorías a 0
-  const totalCalories = (user?.gender && user?.age != null && user?.height != null && user?.weight != null && user?.activity)
+  // Calcular las calorías recomendadas
+  const totalRecommendedCalories = (user?.gender && user?.age != null && user?.height != null && user?.weight != null && user?.activity)
     ? calculateCalories({
         gender: user.gender,
         age: user.age,
@@ -20,6 +24,9 @@ const HomeCard = () => {
         activity: user.activity
       })
     : 0;
+
+  // Calcular la suma de las calorías registradas
+  const totalLoggedCalories = foodLogs.reduce((sum, log) => sum + log.kcal, 0);
 
   return (
     <ImageBackground
@@ -35,37 +42,36 @@ const HomeCard = () => {
             <Icons.DotsThreeOutline size={verticalScale(23)} weight='fill' />
           </View>
           <Typo color={colors.black} size={30} fontWeight={'bold'}>
-            {totalCalories}
+            {totalRecommendedCalories - totalLoggedCalories}
           </Typo>
         </View>
 
         {/* Suma de kcal de alimentos seleccionados */}
         <View style={styles.stats}>
-          <View style={{gap: verticalScale(5)}}>
+          <View style={{ gap: verticalScale(5) }}>
             <View style={styles.incomeCalories}>
               <View style={styles.statsIcon}>
                 <Icons.ArrowUp
                   size={verticalScale(15)}
                   color={colors.black}
                   weight='bold'
-                  />
+                />
               </View>
               <Typo size={16} color={colors.neutral700} fontWeight={'500'}>
                 Registradas
               </Typo>
             </View>
-            <View style={{alignSelf: 'center'}}>
-                <Typo color='#FF8C00' fontWeight={'600'}>2342</Typo>
+            <View style={{ alignSelf: 'center' }}>
+              <Typo color='#FF8C00' fontWeight={'600'}>{totalLoggedCalories}</Typo>
             </View>
           </View>
         </View>
-
       </View>
     </ImageBackground>
-  )
-}
+  );
+};
 
-export default HomeCard
+export default HomeCard;
 
 const styles = StyleSheet.create({
   bgImage: {
@@ -100,4 +106,4 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     gap: spacingY._7,
   }
-})
+});
