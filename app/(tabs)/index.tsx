@@ -23,6 +23,7 @@ import { gql, useQuery } from "@apollo/client";
 import dayjs from "dayjs";
 import FoodLogListItem from "@/components/FoodLogListItem";
 
+
 const query = gql`
   query foodLogsForDate($date: Date!, $user_id: String!) {
     foodLogsForDate(date: $date, user_id: $user_id) {
@@ -42,12 +43,14 @@ const Home = () => {
 
   const router = useRouter();
 
-  const user_id = user?.uid; 
+  
 
-  const { data, loading, error } = useQuery(query, {
+  const user_id = user?.uid;
+
+  const { data, loading, error, refetch } = useQuery(query, {
     variables: { date: dayjs().format("YYYY-MM-DD"), user_id },
-    fetchPolicy: "no-cache",
   });
+
 
   if (loading) {
     return <ActivityIndicator />;
@@ -56,43 +59,52 @@ const Home = () => {
   if (error) {
     return <Text>Failed to fetch data</Text>;
   }
-  
+
   console.log("Data completa:", data);
   console.log("user_id:", user_id);
   console.log("Fecha:", dayjs().format("YYYY-MM-DD"));
-  
+
+
   return (
     <ScreenWrapper>
       <View style={styles.container}>
         {/* Header */}
         <View style={styles.header}>
           <View style={{ gap: 4 }}>
-            <Typo size={16} color={colors.neutral400}>Hello, </Typo>
-            <Typo size={20} fontWeight={"500"}>{user?.name}</Typo>
+            <Typo size={16} color={colors.neutral400}>
+              Hello,{" "}
+            </Typo>
+            <Typo size={20} fontWeight={"500"}>
+              {user?.name}
+            </Typo>
           </View>
-          <TouchableOpacity style={styles.searchIcon} onPress={() => router.navigate('../search')}>
+          <TouchableOpacity
+            style={styles.searchIcon}
+            onPress={() => router.navigate("../search")}
+          >
             <Icons.MagnifyingGlass
               size={verticalScale(24)}
               color={colors.neutral200}
-              weight='bold'
+              weight="bold"
             />
           </TouchableOpacity>
         </View>
-            {/* Card to show user Kcalories */}
-            <View>
-              <HomeCard />
-            </View>
-            
-            <FlatList
-        data={data.foodLogsForDate}
-        contentContainerStyle={{ gap: 5 }}
-        
-        renderItem={({ item }) => {
-          console.log("Comidas del día:", data.foodLogsForDate);
-          console.log('Item:', item);
-          return <FoodLogListItem item={item} />;
-        }}
-      />
+        {/* Card to show user Kcalories */}
+        <View>
+          <HomeCard />
+        </View>
+
+        <View>
+        <FlatList
+          data={data.foodLogsForDate}
+          contentContainerStyle={{ gap: 5 }}
+          renderItem={({ item }) => {
+            console.log("Comidas del día:", data.foodLogsForDate);
+            console.log("Item:", item);
+            return <FoodLogListItem item={item} />;
+          }}
+        />
+        </View>
       </View>
     </ScreenWrapper>
   );
@@ -105,7 +117,7 @@ const styles = StyleSheet.create({
     paddingBottom: verticalScale(100),
     gap: spacingY._25,
   },
-  
+
   container: {
     flex: 1,
     paddingHorizontal: spacingX._20,
